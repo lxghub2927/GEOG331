@@ -13,6 +13,15 @@ help (matrix)
 #by row
 mat <- matrix (c(1,2,3,4,5,6), ncol=2, byrow = TRUE)
 mat
-#by colum
+#by column
 mat_col <- matrix (c(1,2,3,4,5,6), ncol=2, byrow = FALSE)
 mat_col
+
+#start of NOAA exercise
+#extraction of data to computer with file path
+datW <- read.csv("Z:\\zwang2\\github_lw\\GEOG331\\data\\NOAA\\noaa_weather\\2011124.csv", 
+                 stringsAsFactors = T)
+#to obtain more info abt dataframe:
+str(datW)
+#9 variables are seen suggesting there are 9 columns
+#according to data, there are 157849 objcts. This suggests there are 157849 rows.
