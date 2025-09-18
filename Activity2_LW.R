@@ -1,4 +1,7 @@
 #New file for activity/hw2
+
+#Beginning activities: Basic procedural explanations
+#VECTORS
 #make a vector of tree heights in meters
 heights <- c(30,41,20,22)
 #c is a concotanate
@@ -6,7 +9,8 @@ heights <- c(30,41,20,22)
 h_cm <- heights*100
 h_cm
 
-#matric\es
+#MATRICES
+#get more info on the matrix function
 help (matrix)
 
 #function inside function -> matrices
@@ -17,10 +21,13 @@ mat
 mat_col <- matrix (c(1,2,3,4,5,6), ncol=2, byrow = FALSE)
 mat_col
 
-#start of NOAA exercise 
+#DATAFRAMES
+#start of data and plotting exercise based on NOAA data 
 #extraction of data to computer with file path
+#read in weather station file from data folder in moodle using PC file path
 datW <- read.csv("Z:\\zwang2\\github_lw\\GEOG331\\data\\NOAA\\noaa_weather\\2011124.csv", 
                  stringsAsFactors = T)
+
 #to obtain more info abt dataframe:
 str(datW)
 #9 variables are seen suggesting there are 9 columns
@@ -84,15 +91,25 @@ hist(datW$TAVE[datW$siteN == 1],
      ylab="Relative frequency",
      col="grey50",
      border="white")
-#q3 answers
+#Arguments of historgram functions described; also ans to q3:
 help(hist)
-help(paste)
+'''
+-freq argument: logical; if TRUE, the histogram graphic is a representation of frequencies, the counts component of the result; 
+if FALSE, probability densities, component density, are plotted (so that the histogram has a total area of one). Defaults to TRUE if and only if breaks are equidistant (and probability is not specified).
+
+-main, xlab, ylab argument: main title and axis labels: these arguments to title() get “smart” defaults here, e.g., the default ylab is "Frequency" iff freq is true.
+
+-col argument: a colour to be used to fill the bars.
+
+-border argument: the color of the border around the bars. The default is to use the standard foreground color.
+'''
 
 #make a histogram for the first site in our levels, Aberdeen
 #main= is the title name argument.
 #Here you want to paste the actual name of the factor not the numeric index
 #since that will be more meaningful. 
 par(mfrow=c(2,2))
+#par(mfrow=c(2,2) will allow us to create a 2 by 2 window with four screens to each display a histogram. Will assist us in comparing visualized data
 hist(datW$TAVE[datW$siteN == 1],
      freq=FALSE, 
      main = paste(levels(datW$NAME)[1]),
@@ -118,8 +135,8 @@ abline(v = mean(datW$TAVE[datW$siteN == 1],na.rm=TRUE) + sd(datW$TAVE[datW$siteN
        lty = 3,
        lwd = 3)
 
-#livermore histogram representation (2nd city)
-#since that will be more meaningful. 
+#livermore histogram representation (2nd site)
+#repeat of procedures from aberdeen to create new histogram with mean and sd+1/-1 labeled
 hist(datW$TAVE[datW$siteN == 2],
      freq=FALSE, 
      main = paste(levels(datW$NAME)[2]),
@@ -145,7 +162,7 @@ abline(v = mean(datW$TAVE[datW$siteN == 2],na.rm=TRUE) + sd(datW$TAVE[datW$siteN
        lty = 3,
        lwd = 3)
 
-#Mandan Experiment Station data histogram representation (3rd city)
+#Mandan Experiment Station data histogram representation (3rd site)
 hist(datW$TAVE[datW$siteN == 3],
      freq=FALSE, 
      main = paste(levels(datW$NAME)[3]),
@@ -171,7 +188,7 @@ abline(v = mean(datW$TAVE[datW$siteN == 3],na.rm=TRUE) + sd(datW$TAVE[datW$siteN
        lty = 3,
        lwd = 3)
 
-#Mormon Flat Station data histogram representation (4th city)
+#Mormon Flat Station data histogram representation (4th site)
 hist(datW$TAVE[datW$siteN == 4],
      freq=FALSE, 
      main = paste(levels(datW$NAME)[4]),
@@ -197,7 +214,7 @@ abline(v = mean(datW$TAVE[datW$siteN == 4],na.rm=TRUE) + sd(datW$TAVE[datW$siteN
        lty = 3,
        lwd = 3)
 
-#Morrisville Station data histogram representation (5th city)
+#Morrisville Station data histogram representation (5th site)
 hist(datW$TAVE[datW$siteN == 5],
      freq=FALSE, 
      main = paste(levels(datW$NAME)[5]),
@@ -223,12 +240,10 @@ abline(v = mean(datW$TAVE[datW$siteN == 5],na.rm=TRUE) + sd(datW$TAVE[datW$siteN
        lty = 3,
        lwd = 3)
 
-#dnorm function showcase from exercise:
-#make a histogram for the first site in our levels
-#main= is the title name argument.
-#Here you want to paste the actual name of the factor not the numeric index
-#since that will be more meaningful. 
-#note I've named the histogram so I can reference it later
+#PROBABILITY DISTRIBUTION
+#Utilizing the dnorm and pnorm functions: 
+#plotting a normal distribution graph over the histogram plot
+#make a histogram for Aberdeen again
 h_aberdeen <- hist(datW$TAVE[datW$siteN == 1],
            freq=FALSE, 
            main = paste(levels(datW$NAME)[1]),
@@ -243,14 +258,13 @@ x.plot <- seq(-10,30, length.out = 100)
 y.plot <-  dnorm(seq(-10,30, length.out = 100),
                  mean(datW$TAVE[datW$siteN == 1],na.rm=TRUE),
                  sd(datW$TAVE[datW$siteN == 1],na.rm=TRUE))
-#create a density that is scaled to fit in the plot  since the density has a different range from the data density.
+#create a density that is scaled to fit in the plot since the density has a different range from the data density.
 #!!! this is helpful for putting multiple things on the same plot
 #!!! It might seem confusing at first. It means the maximum value of the plot is always the same between the two datasets on the plot. Here both plots share zero as a minimum.
-y.scaled <- (max(h1$density)/max(y.plot)) * y.plot
+y.scaled <- (max(h_aberdeen$density)/max(y.plot)) * y.plot
 
 #points function adds points or lines to a graph  
 #the first two arguements are the x coordinates and the y coordinates.
-
 points(x.plot,
        y.scaled, 
        type = "l", 
@@ -258,7 +272,7 @@ points(x.plot,
        lwd = 4, 
        lty = 2)
 
-#moving to calculating probability of temp occuring
+#moving to calculating probability of temp occuring: with the utilization of dnorm & pnorm
 help(dnorm)
 #pnorm(value to evaluate at (note this will evaluate for all values and below),mean, standard deviation)-> To calculate probability of getting a freezing temp at this site
 pnorm(0,
@@ -279,16 +293,17 @@ pnorm(5,
 1 - pnorm(20,
           mean(datW$TAVE[datW$siteN == 1],na.rm=TRUE),
           sd(datW$TAVE[datW$siteN == 1],na.rm=TRUE))
-#creation of current extreme temperature threshold
+#creation of extreme temperature threshold based on current temperature and current threshold level
 extreme_temp <- qnorm(0.95, 
       mean(datW$TAVE[datW$siteN == 1],na.rm=TRUE),
       sd(datW$TAVE[datW$siteN == 1],na.rm=TRUE))
 
-#calculation of probability for Q6 with modification to mean according to question
+#calculation of probability for Q6 (observing temp greater than the current threshold for extreme temperatures) with modification to mean according to question
 1 - pnorm(extreme_temp,
       mean(datW$TAVE[datW$siteN == 1],na.rm=TRUE)+4,
       sd(datW$TAVE[datW$siteN == 1],na.rm=TRUE))
 
+#EVALUATING PATTERNS IN PRECIPITATION DATA
 #Question 7: Precipitation of Aberdeen
 #To create a histogram depicting precipitation in Aberdeen
 hist(datW$PRCP[datW$siteN == 1],
@@ -296,7 +311,7 @@ hist(datW$PRCP[datW$siteN == 1],
      main = paste(levels(datW$NAME)[1]),
      xlab = "Average daily precipitation (mm)", 
      ylab="Relative frequency",
-     col="grey50",
+     col="blue",
      border="white")
 
 #Question 8: Calculating sum annual precipitation:
@@ -305,16 +320,16 @@ hist(datW$PRCP[datW$siteN == 1],
 annual_prcp_abr <- aggregate(datW$PRCP[datW$siteN == 1], by=list(datW$year[datW$siteN == 1]), FUN="sum",na.rm=TRUE)
 annual_prcp_abr
 
-
-#reorganization of data into 
+#renaming of dataset for organizational purposes 
 colnames(annual_prcp_abr) <- c("Year","Total Annual Prcp (mm)")
 annual_prcp_abr
 
-
+#indicating treatment of data as numeric data
 annual_prcp_abr$Year <- as.numeric(annual_prcp_abr$Year)
 annual_prcp_abr
 
-hist(annual_prcp_abr$`Avg Prcp (mm)`,
+#creation of histogram depicting annual precipitation data of Aberdeen, WA
+h_prcp_abr <- hist(annual_prcp_abr$`Total Annual Prcp (mm)`,
      freq=FALSE, 
      main = paste(levels(datW$NAME)[1]),
      xlab = "Annual Precipitation (mm)", 
@@ -383,3 +398,4 @@ mean_prcp_mf
 #repeat steps for Morrisville
 mean_prcp_ms <- mean(annual_prcp_ms$`Total Annual Prcp (mm)`)
 mean_prcp_ms
+
