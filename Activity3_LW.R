@@ -131,3 +131,45 @@ points(datW$DD[lightscale > 0], lightscale[lightscale > 0],
 #For Question 5
 #Using assert to see if lightscale is in fact incorporating the lightning.activity values. Assert functions checks this by testing to see if data length is same for both group of values.
 assert(length(lightscale) == length(datW$lightning.acvitivy))
+
+#filter out storms in wind and air temperature measurements
+# filter all values with lightning that coincides with rainfall greater than 2mm or only rainfall over 5 mm.    
+#create a new air temp column
+datW$air.tempQ2 <- ifelse(datW$precipitation  >= 2 & datW$lightning.acvitivy >0, NA,
+                          ifelse(datW$precipitation > 5, NA, datW$air.tempQ1))
+
+#Question 6
+datW$wind.speedQ6<- ifelse(datW$precipitation  >= 2 & datW$lightning.acvitivy >0, NA,
+                          ifelse(datW$precipitation > 5, NA, datW$wind.speed))
+
+assert(length(datW$air.tempQ2) == length(datW$wind.speedQ6))
+
+plot(datW$DD , datW$wind.speedQ6, xlab = "Day of Year", ylab = "Precipitation & lightning",
+     type="n")
+points(datW$DD[datW$precipitation > 0], datW$precipitation[datW$precipitation > 0],
+       col= rgb(95/255,158/255,160/255,.5), pch=15)   
+points(datW$DD[lightscale > 0], lightscale[lightscale > 0],
+       col= "tomato3", pch=19)
+
+plot(datW$DD, datW$wind.speedQ6, pch=19, type="b", xlab = "Day of Year",
+     ylab="Precipitation & lightning")
+
+
+#Question 7
+plot(datW$DD , datW$precipitation, xlab = "Day of Year", ylab = "Precipitation & Soil Moisture Level",
+     type="n")
+points(datW$DD, datW$precipitation, 
+       col= "blue")
+points(datW$DD[datW$soil.moisture > 0], datW$soil.moisture[datW$soil.moisture > 0], 
+       col= "orange", 
+      pch=15)
+
+plot(datW$DD , datW$air.tempQ2, xlab = "Day of Year", ylab = "Air Temperature & Soil Temperature",
+     type="n")
+points(datW$DD, datW$air.tempQ2, 
+       col= "blue")
+lines(datW$DD[datW$soil.temp > 0], datW$soil.temp[datW$soil.temp > 0],
+      col= "orange", pch=200)
+
+#Question 8
+
