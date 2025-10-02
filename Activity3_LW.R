@@ -50,6 +50,7 @@ install.packages(c("lubridate"))
 #and the package installs. You really don't want to do this over and over again.
 
 library(lubridate)
+
 assert <- function(statement,err.message){
   if(statement == FALSE){
     print(err.message)
@@ -107,10 +108,9 @@ datW[datW$air.tempQ1 > 33,]
 
 #chapter: measurements outside of sensor capabilities
 
-'''
-The following segment describes using lightning sensors and precipitation sensors to detect thunderstorms. In turn, this points out data collected during thunderstorms
-that might be unreliable due to inaccuracy from heavy rain and strong wind
-'''
+
+#The following segment describes using lightning sensors and precipitation sensors to detect thunderstorms. In turn, this points out data collected during thunderstorms that might be unreliable due to inaccuracy from heavy rain and strong wind
+
 #plot precipitation and lightning strikes on the same plot
 #normalize lighting strikes to match precipitation
 lightscale <- (max(datW$precipitation)/max(datW$lightning.acvitivy)) * datW$lightning.acvitivy
@@ -163,13 +163,45 @@ points(datW$DD, datW$precipitation,
 points(datW$DD[datW$soil.moisture > 0], datW$soil.moisture[datW$soil.moisture > 0], 
        col= "orange", 
       pch=15)
-
+title(main="Precipitation compared w. Soil Moisture")
 plot(datW$DD , datW$air.tempQ2, xlab = "Day of Year", ylab = "Air Temperature & Soil Temperature",
      type="n")
 points(datW$DD, datW$air.tempQ2, 
        col= "blue")
 lines(datW$DD[datW$soil.temp > 0], datW$soil.temp[datW$soil.temp > 0],
       col= "orange", pch=200)
+title(main="Air Temperature compared w. Soil Temperature")
 
 #Question 8
+num_valid_values <- sum(!is.na(datW$wind.speedQ6))
+print(num_valid_values)
 
+num_valid_values <- sum(!is.na(datW$DD))
+print(num_valid_values)
+
+#Question 9
+par(mfrow=c(2,2))
+plot(datW$DD , datW$precipitation, xlab = "Day of Year", ylab = "Precipitation",
+     type="n")
+points(datW$DD, datW$precipitation, 
+       col= "blue")
+title(main="Precipitation")
+plot(datW$DD , datW$soil.moisture, xlab = "Day of Year", ylab = "Soil Moisture",
+     type="n")
+points(datW$DD, datW$soil.moisture, 
+       col= "tomato")
+title(main="Soil Moisture")
+plot(datW$DD , datW$air.tempQ2, xlab = "Day of Year", ylab = "Air Temperature",
+     type="n")
+points(datW$DD, datW$air.tempQ2, 
+       col= "orange")
+title(main="Air Temperature")
+plot(datW$DD , datW$soil.temp, xlab = "Day of Year", ylab = "Precipitation",
+     type="n")
+points(datW$DD, datW$soil.temp, 
+       col= "brown")
+title(main="Soil Temperature")
+
+identical(datW$soil.moisture, datW$soil.moistureQ2)
+all.equal(datW$soil.moisture, datW$soil.moistureQ2)
+environment(datW$soil.moisture)
