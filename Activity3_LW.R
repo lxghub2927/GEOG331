@@ -227,9 +227,10 @@ print(rmean_ws)
 
 mean_st <- mean(datW$soil.temp, na.rm=TRUE)
 rmean_st <- round(mean_st)
-print(mean_soiltemp)
+print(rmean_st)
 
 mean_prcp <- mean(datW$precipitation, na.rm=TRUE)
+#how to round this??????
 print(mean_prcp)
 '''
 totalmeanairtemp <- mean(datW$air.temperature, na.rm=TRUE)
