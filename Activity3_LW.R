@@ -1,6 +1,9 @@
 #Activity 3: GEOG 331: Luke Wang
 #Testing your codes
 
+
+##### Start of basic codes that will be used for exercise #####
+
 #create a function. The names of the arguments for your function will be in parentheses. Everything in curly brackets will be run each time the function is run.
 assert <- function(statement,err.message){
   #if evaluates if a statement is true or false for a single item
@@ -16,8 +19,6 @@ assert(1 == 2, "error: unequal values")
 #evaluation of 1 == 1 is true, so nothing is printed
 assert(1 == 1)
 
-#evaluate of anothing true statement
-assert(2 == 2, "error: unequal values")
 #set up assert to check if two vectors are the same length
 a <- c(1,2,3,4)
 b <- c(8,4,5)
@@ -45,7 +46,7 @@ print(datW[1,])
 
 
 #use install.packages to install lubridate
-install.packages(c("lubridate"))
+#install.packages(c("lubridate"))
 #it is helpful to comment this line after you run this line of code on the computer
 #and the package installs. You really don't want to do this over and over again.
 
@@ -128,12 +129,13 @@ points(datW$DD[datW$precipitation > 0], datW$precipitation[datW$precipitation > 
 points(datW$DD[lightscale > 0], lightscale[lightscale > 0],
        col= "tomato3", pch=19)
 
+##### Start of Codes that links to answers ######
 
 ###############################################
 
 #For Question 5
 #Using assert to see if lightscale is in fact incorporating the lightning.activity values. Assert functions checks this by testing to see if data length is same for both group of values.
-assert(length(lightscale) == length(datW$lightning.acvitivy))
+assert(length(lightscale) == length(datW$lightning.acvitivy), "error: unequal length")
 
 #filter out storms in wind and air temperature measurements
 # filter all values with lightning that coincides with rainfall greater than 2mm or only rainfall over 5 mm.    
@@ -144,10 +146,12 @@ datW$air.tempQ2 <- ifelse(datW$precipitation  >= 2 & datW$lightning.acvitivy >0,
 ################################################
 
 #Question 6
+#utilization of the previous filter to create a filtered wind speed data.
 datW$wind.speedQ6<- ifelse(datW$precipitation  >= 2 & datW$lightning.acvitivy >0, NA,
                           ifelse(datW$precipitation > 5, NA, datW$wind.speed))
 
-assert(length(datW$air.tempQ2) == length(datW$wind.speedQ6))
+#utilization of assert to test if length of both filtered wind speed and air temp is the same. Same suggests successful filtering
+assert(length(datW$air.tempQ2) == length(datW$wind.speedQ6), "error: unequal length")
 
 plot(datW$DD , datW$wind.speedQ6, xlab = "Day of Year", ylab = "Wind Speed (suspect measurements removed)",
      type="n")
@@ -163,44 +167,38 @@ plot(datW$DD, datW$wind.speedQ6, pch=19, type="b", xlab = "Day of Year",
 ###############################################
 
 #Question 7
+#Utilization of plotting of graphs to check if soil sensor was reliable up to date of sabotage.
+#The first part involves comparison between precipitatin and soil moisture to see if soil moisture measurements are accurate.
+
+#Utilization of par function to alter parameters and allow plotting of 2nd y-axis on right side of the graph.
 par(mar=c(5,4,4,4)+0.1)
+
+#Using of plotting functions and points function to plot precipitation data onto a scatter plot
 plot(datW$DD , datW$precipitation, type = "n", xlab = "Day of year", ylab = "Precipitation(mm)")
 points(datW$DD, datW$precipitation, 
        col= "blue")
+#par(new = TRUE) allows plotting of new group of data
 par(new = TRUE)
+#plotting of soil moisture points into graph
 plot(datW$DD , datW$soil.moisture, type = "l", col="orange", xaxt = "n", yaxt = "n", ylab = "", xlab = "")
-'''
-points(datW$DD[datW$soil.moisture > 0], datW$soil.moisture[datW$soil.moisture > 0], 
-       col= "orange", 
-      pch=15)
-'''
+#utilization of axis and mtext to incorporate a 2nd y-axis that corresponds to the 2nd set of data, soil moisture.
 axis(side=4)
 mtext("Soil Moisture Level(meters cubed per meter cubed)", side = 4, line = 3)
+#incorporating a title and legend to help presentation of the datas
 title(main="Precipitation compared w. Soil Moisture")
 legend("topright", legend = c("Precipitation(mm)", "Soil Moisture Level(meters cubed per meter cubed)"), col = c("blue","orange"), lty = c(2), pch=c(1))
 
-'''
-plot(datW$DD , datW$air.tempQ2, xlab = "Day of Year", ylab = "Air Temperature & Soil Temperature",
-     type="n")
-points(datW$DD, datW$air.tempQ2, 
-       col= "blue")
-lines(datW$DD[datW$soil.temp > 0], datW$soil.temp[datW$soil.temp > 0],
-      col= "orange", pch=200)
-title(main="Air Temperature compared w. Soil Temperature")
-'''
+#repeat of previous steps for comparison of air temperature to soil temperature
 par(mar=c(5,4,4,4)+0.1)
 plot(datW$DD , datW$air.tempQ2, type = "n", xlab = "Day of year", ylab = "Air Temperature (Celsius)")
 points(datW$DD, datW$air.tempQ2, 
        col= "blue")
 par(new = TRUE)
 plot(datW$DD , datW$soil.temp, type = "l", col="orange", xaxt = "n", yaxt = "n", ylab = "", xlab = "")
-'''
-points(datW$DD[datW$soil.moisture > 0], datW$soil.moisture[datW$soil.moisture > 0], 
-       col= "orange", 
-      pch=15)
-'''
+
 axis(side=4)
 mtext("Soil Temperature (Celsius)", side = 4, line = 3)
+
 title(main="Air Temperature compared w. Soil Temeprature")
 legend("topright", legend = c("Air Temperature (Celsius)", "Soil Temperature (Celsius)"), col = c("blue","orange"), lty = c(2), pch=c(1))
 
@@ -208,63 +206,71 @@ legend("topright", legend = c("Air Temperature (Celsius)", "Soil Temperature (Ce
 
 #Question 8
 
-num_valid_values1 <- sum(!is.na(datW$wind.speedQ6))
-print(num_valid_values1)
-
-num_valid_values2 <- sum(!is.na(datW$DD))
-print(num_valid_values2)
-
-num_valid_values3 <- sum(!is.na(datW$air.temperature))
-print(num_valid_values3)
-
+#showcase of finding required values of air temperature.
+#Utilization of mean function to calculate mean of specified measurement. Utilization of na.rm=TRUE to remove missing values from calculation.
 mean_airtemp <- mean(datW$air.tempQ2, na.rm=TRUE)
-rmean_airtemp <- round(mean_airtemp, digits = 1)
-print(rmean_airtemp)
+#utilization of sum function and !is.na function to determine how many observations went into this calculation.
+num_valid_airtemp <- sum(!is.na(datW$air.tempQ2))
+#printing of mean value and number of observations went in.
+print(mean_airtemp)
+print(num_valid_airtemp)
 
+#repeat of previous steps for wind speed
 mean_windspeed <- mean(datW$wind.speedQ6, na.rm=TRUE)
-rmean_ws <- round(mean_windspeed, digits = 1)
-print(rmean_ws)
+num_valid_ws <- sum(!is.na(datW$wind.speedQ6))
+print(mean_windspeed)
+print(num_valid_ws)
 
+#repeat of steps for soil temperature
 mean_st <- mean(datW$soil.temp, na.rm=TRUE)
-rmean_st <- round(mean_st)
-print(rmean_st)
+num_valid_st <- sum(!is.na(datW$soil.temp))
+print(mean_st)
+print(num_valid_st)
 
-mean_prcp <- mean(datW$precipitation, na.rm=TRUE)
-#how to round this??????
-print(mean_prcp)
-'''
-totalmeanairtemp <- mean(datW$air.temperature, na.rm=TRUE)
-print(totalmeanairtemp)
-'''
+#repeat of steps for soil moisture
+mean_sm <- mean(datW$soil.moisture, na.rm=TRUE)
+num_sm <- sum(!is.na(datW$soil.moisture))
+print(mean_sm)
+print(num_sm)
+
+#repeat of steps for precipitation
+#small alterations to calculate summed up precipitation observations instead of calculating mean.
+t_prcp <- sum(datW$precipitation)
+num_prcp <- sum(!is.na(datW$precipitation))
+print(t_prcp)
+print(num_prcp)
 
 ##################################################
 
 #Question 9
+#Utilization of parameters to create a 2x2 digram depicting the 4 plots to be plotted for Q9.
 par(mfrow=c(2,2))
-plot(datW$DD , datW$precipitation, xlab = "Day of Year", ylab = "Precipitation",
+
+#Plotting of the precipitation data with title
+plot(datW$DD , datW$precipitation, xlab = "Day of Year", ylab = "Precipitation (mm)",
      type="n")
 points(datW$DD, datW$precipitation, 
        col= "blue")
-title(main="Precipitation")
-plot(datW$DD , datW$soil.moisture, xlab = "Day of Year", ylab = "Soil Moisture",
+title(main="Precipitation Data")
+
+#Plotting of the soil moisture data with title
+plot(datW$DD , datW$soil.moisture, xlab = "Day of Year", ylab = "Soil Moisture (Meters Cubed per Meter Cube)",
      type="n")
 points(datW$DD, datW$soil.moisture, 
        col= "tomato")
-title(main="Soil Moisture")
-plot(datW$DD , datW$air.tempQ2, xlab = "Day of Year", ylab = "Air Temperature",
+title(main="Soil Moisture Data")
+
+#Plotting of air temperature data with title
+plot(datW$DD , datW$air.tempQ2, xlab = "Day of Year", ylab = "Air Temperature (Celsius)",
      type="n")
 points(datW$DD, datW$air.tempQ2, 
        col= "orange")
-title(main="Air Temperature")
-plot(datW$DD , datW$soil.temp, xlab = "Day of Year", ylab = "Precipitation",
+title(main="Air Temperature Data")
+
+#Plotting of soil temperature data with title
+plot(datW$DD , datW$soil.temp, xlab = "Day of Year", ylab = "Soil Temperature (Celsius)",
      type="n")
 points(datW$DD, datW$soil.temp, 
        col= "brown")
-title(main="Soil Temperature")
+title(main="Soil Temperature Data")
 
-'''
-probably useless codes
-identical(datW$soil.moisture, datW$soil.moistureQ2)
-all.equal(datW$soil.moisture, datW$soil.moistureQ2)
-environment(datW$soil.moisture)
-'''
