@@ -163,7 +163,7 @@ points(datW$DD[lightscale > 0], lightscale[lightscale > 0],
 
 plot(datW$DD, datW$wind.speedQ6, pch=19, type="b", xlab = "Day of Year",
      ylab="Wind Speed (suspect measurements removed)")
-
+title(main="Filtered Wind Speed Plot")
 ###############################################
 
 #Question 7
