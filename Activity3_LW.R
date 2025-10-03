@@ -103,6 +103,7 @@ quantile(datW$air.tempQ1)
 
 #look at days with really low air temperature
 datW[datW$air.tempQ1 < 8,]  
+
 #look at days with really high air temperature
 datW[datW$air.tempQ1 > 33,]
 
@@ -128,6 +129,8 @@ points(datW$DD[lightscale > 0], lightscale[lightscale > 0],
        col= "tomato3", pch=19)
 
 
+###############################################
+
 #For Question 5
 #Using assert to see if lightscale is in fact incorporating the lightning.activity values. Assert functions checks this by testing to see if data length is same for both group of values.
 assert(length(lightscale) == length(datW$lightning.acvitivy))
@@ -138,32 +141,45 @@ assert(length(lightscale) == length(datW$lightning.acvitivy))
 datW$air.tempQ2 <- ifelse(datW$precipitation  >= 2 & datW$lightning.acvitivy >0, NA,
                           ifelse(datW$precipitation > 5, NA, datW$air.tempQ1))
 
+################################################
+
 #Question 6
 datW$wind.speedQ6<- ifelse(datW$precipitation  >= 2 & datW$lightning.acvitivy >0, NA,
                           ifelse(datW$precipitation > 5, NA, datW$wind.speed))
 
 assert(length(datW$air.tempQ2) == length(datW$wind.speedQ6))
 
-plot(datW$DD , datW$wind.speedQ6, xlab = "Day of Year", ylab = "Precipitation & lightning",
+plot(datW$DD , datW$wind.speedQ6, xlab = "Day of Year", ylab = "Wind Speed (suspect measurements removed)",
      type="n")
 points(datW$DD[datW$precipitation > 0], datW$precipitation[datW$precipitation > 0],
        col= rgb(95/255,158/255,160/255,.5), pch=15)   
 points(datW$DD[lightscale > 0], lightscale[lightscale > 0],
        col= "tomato3", pch=19)
 
-plot(datW$DD, datW$wind.speedQ6, pch=19, type="b", xlab = "Day of Year",
-     ylab="Precipitation & lightning")
 
+plot(datW$DD, datW$wind.speedQ6, pch=19, type="b", xlab = "Day of Year",
+     ylab="Wind Speed (suspect measurements removed)")
+
+###############################################
 
 #Question 7
-plot(datW$DD , datW$precipitation, xlab = "Day of Year", ylab = "Precipitation & Soil Moisture Level",
-     type="n")
+par(mar=c(5,4,4,4)+0.1)
+plot(datW$DD , datW$precipitation, type = "n", xlab = "Day of year", ylab = "Precipitation(mm)")
 points(datW$DD, datW$precipitation, 
        col= "blue")
+par(new = TRUE)
+plot(datW$DD , datW$soil.moisture, type = "l", col="orange", xaxt = "n", yaxt = "n", ylab = "", xlab = "")
+'''
 points(datW$DD[datW$soil.moisture > 0], datW$soil.moisture[datW$soil.moisture > 0], 
        col= "orange", 
       pch=15)
+'''
+axis(side=4)
+mtext("Soil Moisture Level(meters cubed per meter cubed)", side = 4, line = 3)
 title(main="Precipitation compared w. Soil Moisture")
+legend("topright", legend = c("Precipitation(mm)", "Soil Moisture Level(meters cubed per meter cubed)"), col = c("blue","orange"), lty = c(2), pch=c(1))
+
+'''
 plot(datW$DD , datW$air.tempQ2, xlab = "Day of Year", ylab = "Air Temperature & Soil Temperature",
      type="n")
 points(datW$DD, datW$air.tempQ2, 
@@ -171,13 +187,56 @@ points(datW$DD, datW$air.tempQ2,
 lines(datW$DD[datW$soil.temp > 0], datW$soil.temp[datW$soil.temp > 0],
       col= "orange", pch=200)
 title(main="Air Temperature compared w. Soil Temperature")
+'''
+par(mar=c(5,4,4,4)+0.1)
+plot(datW$DD , datW$air.tempQ2, type = "n", xlab = "Day of year", ylab = "Air Temperature (Celsius)")
+points(datW$DD, datW$air.tempQ2, 
+       col= "blue")
+par(new = TRUE)
+plot(datW$DD , datW$soil.temp, type = "l", col="orange", xaxt = "n", yaxt = "n", ylab = "", xlab = "")
+'''
+points(datW$DD[datW$soil.moisture > 0], datW$soil.moisture[datW$soil.moisture > 0], 
+       col= "orange", 
+      pch=15)
+'''
+axis(side=4)
+mtext("Soil Temperature (Celsius)", side = 4, line = 3)
+title(main="Air Temperature compared w. Soil Temeprature")
+legend("topright", legend = c("Air Temperature (Celsius)", "Soil Temperature (Celsius)"), col = c("blue","orange"), lty = c(2), pch=c(1))
+
+##################################################
 
 #Question 8
-num_valid_values <- sum(!is.na(datW$wind.speedQ6))
-print(num_valid_values)
 
-num_valid_values <- sum(!is.na(datW$DD))
-print(num_valid_values)
+num_valid_values1 <- sum(!is.na(datW$wind.speedQ6))
+print(num_valid_values1)
+
+num_valid_values2 <- sum(!is.na(datW$DD))
+print(num_valid_values2)
+
+num_valid_values3 <- sum(!is.na(datW$air.temperature))
+print(num_valid_values3)
+
+mean_airtemp <- mean(datW$air.tempQ2, na.rm=TRUE)
+rmean_airtemp <- round(mean_airtemp, digits = 1)
+print(rmean_airtemp)
+
+mean_windspeed <- mean(datW$wind.speedQ6, na.rm=TRUE)
+rmean_ws <- round(mean_windspeed, digits = 1)
+print(rmean_ws)
+
+mean_st <- mean(datW$soil.temp, na.rm=TRUE)
+rmean_st <- round(mean_st)
+print(mean_soiltemp)
+
+mean_prcp <- mean(datW$precipitation, na.rm=TRUE)
+print(mean_prcp)
+'''
+totalmeanairtemp <- mean(datW$air.temperature, na.rm=TRUE)
+print(totalmeanairtemp)
+'''
+
+##################################################
 
 #Question 9
 par(mfrow=c(2,2))
@@ -202,6 +261,9 @@ points(datW$DD, datW$soil.temp,
        col= "brown")
 title(main="Soil Temperature")
 
+'''
+probably useless codes
 identical(datW$soil.moisture, datW$soil.moistureQ2)
 all.equal(datW$soil.moisture, datW$soil.moistureQ2)
 environment(datW$soil.moisture)
+'''
