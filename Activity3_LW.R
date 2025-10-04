@@ -247,7 +247,6 @@ print(mean_sm)
 print(num_sm)
 
 
-
 #repeat of steps for precipitation
 #small alterations to calculate summed up precipitation observations instead of calculating mean.
 t_prcp <- sum(datW$precipitation)
