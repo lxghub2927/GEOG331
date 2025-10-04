@@ -1,9 +1,9 @@
 #Activity 3: GEOG 331: Luke Wang
 #Testing your codes
 
-
 ##### Start of basic codes that will be used for exercise #####
 
+####Learning to use Assert Function + Assert Template####
 #create a function. The names of the arguments for your function will be in parentheses. Everything in curly brackets will be run each time the function is run.
 assert <- function(statement,err.message){
   #if evaluates if a statement is true or false for a single item
@@ -13,7 +13,8 @@ assert <- function(statement,err.message){
   
 }
 
-#check how the statement works
+#checking how the statement works
+
 #evaluate a false statement
 assert(1 == 2, "error: unequal values")
 #evaluation of 1 == 1 is true, so nothing is printed
@@ -24,7 +25,11 @@ a <- c(1,2,3,4)
 b <- c(8,4,5)
 assert(length(a) == length(b), "error: unequal length")
 
-#Data from Bewkes site
+###############################################################
+
+#####Data from Bewkes site####
+#### Question 3 Related Codes
+
 #read in the data file
 #skip the first 3 rows since there is additional column info
 #specify the the NA is designated differently
@@ -44,6 +49,9 @@ colnames(datW) <-   colnames(sensorInfo)
 #preview data
 print(datW[1,])
 
+###############################################################
+
+####Lubridate####
 
 #use install.packages to install lubridate
 #install.packages(c("lubridate"))
@@ -57,6 +65,10 @@ assert <- function(statement,err.message){
     print(err.message)
   }
 }
+###############################################################
+
+####Timing of Data####
+
 #the following segment incorporates converting the times of the data
 
 #convert to standardized format <- standard: new york
@@ -71,10 +83,11 @@ datW$DD <- datW$doy + (datW$hour/24)
 #quick preview of new date calculations
 datW[1,]
 
-#see how many values have missing data for each sensor observation
+###############################################################
+####see how many values have missing data for each sensor observation####
+
 #air temperature
 length(which(is.na(datW$air.temperature)))
-
 #wind speed
 length(which(is.na(datW$wind.speed)))
 #precipitation
@@ -84,17 +97,19 @@ length(which(is.na(datW$soil.moisture)))
 #soil moisture
 length(which(is.na(datW$soil.temp)))
 
-#make a plot with filled in points (using pch)
-#line lines
+###############################################################
+####making plots with filled in points (using pch)####
+#1: Plotting soil Moisture
 plot(datW$DD, datW$soil.moisture, pch=19, type="b", xlab = "Day of Year",
-     ylab="Soil moisture (cm3 water per cm3 soil)")
+     ylab="Soil moisture (meters cubed per meter cubed)")
 
-#make a plot with filled in points (using pch)
-#line lines
+#2: Plotting air temperature
 plot(datW$DD, datW$air.temperature, pch=19, type="b", xlab = "Day of Year",
-     ylab="Air temperature (degrees C)")
+     ylab="Air temperature (Celsius)")
 
-#the following segment incorporates how to remove false anomalous datas.
+
+##############################################################
+####Removing values from the extreme ranges
 datW$air.tempQ1 <- ifelse(datW$air.temperature < 0, NA, datW$air.temperature)
 
 #checking for realistic values:
@@ -108,13 +123,13 @@ datW[datW$air.tempQ1 < 8,]
 #look at days with really high air temperature
 datW[datW$air.tempQ1 > 33,]
 
-#chapter: measurements outside of sensor capabilities
+#Data generated here was used to answer Q4.
 
-
+############################################################
 #The following segment describes using lightning sensors and precipitation sensors to detect thunderstorms. In turn, this points out data collected during thunderstorms that might be unreliable due to inaccuracy from heavy rain and strong wind
 
 #plot precipitation and lightning strikes on the same plot
-#normalize lighting strikes to match precipitation
+#normalize lighting strikes to match precipitation and creating lightscale to reflect this
 lightscale <- (max(datW$precipitation)/max(datW$lightning.acvitivy)) * datW$lightning.acvitivy
 #make the plot with precipitation and lightning activity marked
 #make it empty to start and add in features
@@ -128,8 +143,6 @@ points(datW$DD[datW$precipitation > 0], datW$precipitation[datW$precipitation > 
 #plot lightning points only when there is lightning     
 points(datW$DD[lightscale > 0], lightscale[lightscale > 0],
        col= "tomato3", pch=19)
-
-##### Start of Codes that links to answers ######
 
 ###############################################
 
@@ -151,7 +164,7 @@ datW$wind.speedQ6<- ifelse(datW$precipitation  >= 2 & datW$lightning.acvitivy >0
                           ifelse(datW$precipitation > 5, NA, datW$wind.speed))
 
 #utilization of assert to test if length of both filtered wind speed and air temp is the same. Same suggests successful filtering
-assert(length(datW$air.tempQ2) == length(datW$wind.speedQ6), "error: unequal length")
+assert(sum(is.na(datW$wind.speedQ6)) > sum(is.na(datW$wind.speed)), "error: data not correct -> not filtered data")
 
 plot(datW$DD , datW$wind.speedQ6, xlab = "Day of Year", ylab = "Wind Speed (suspect measurements removed)",
      type="n")
@@ -232,6 +245,8 @@ mean_sm <- mean(datW$soil.moisture, na.rm=TRUE)
 num_sm <- sum(!is.na(datW$soil.moisture))
 print(mean_sm)
 print(num_sm)
+
+
 
 #repeat of steps for precipitation
 #small alterations to calculate summed up precipitation observations instead of calculating mean.
