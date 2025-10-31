@@ -151,3 +151,50 @@ legend("topright", c("mean","1 standard deviation"), #legend items
        fill=c(NA,rgb(0.392, 0.584, 0.929,.2)),#fill boxes
        border=NA,#no border for both fill boxes (don't need a vector here since both are the same)
        bty="n")#no legend border
+
+
+##################
+#Question 5
+## 1) 2017 daily means (by DOY)
+d2017 <- subset(datD, year == 2017)
+ave2017 <- aggregate(discharge ~ doy, d2017, mean, na.rm = TRUE)
+
+## 2) Nice y-limits that include mean±SD and 2017
+ymin <- 0
+ymax <- max(c(aveF$dailyAve + sdF$dailySD, ave2017$discharge), na.rm = TRUE)
+ymax <- ceiling(ymax/10)*10  # round up a bit
+
+## 3) Month ticks (use a non-leap template, 2017)
+month_starts <- yday(ymd(paste(2017, 1:12, 1, sep = "-")))  # 1,32,60,...
+month_labs   <- month.abb
+
+## 4) Plot mean, ribbon (±1 SD), custom axes, then overlay 2017 line
+par(mai = c(1,1,1,1))
+plot(aveF$doy, aveF$dailyAve,
+     type = "l",
+     xlim = c(1, 365), ylim = c(ymin, ymax),
+     xaxs = "i", yaxs = "i",
+     xlab = "Month",
+     ylab = expression(paste("Discharge (ft"^3, " sec"^-1, ")")),
+     lwd = 2, axes = FALSE)
+
+polygon(c(aveF$doy, rev(aveF$doy)),
+        c(aveF$dailyAve - sdF$dailySD, rev(aveF$dailyAve + sdF$dailySD)),
+        col = rgb(0.392, 0.584, 0.929, .2),
+        border = NA)
+
+axis(1, at = month_starts, labels = month_labs)                 # months on x-axis
+axis(2, las = 2)                                                # y-axis
+box()
+
+## 5) 2017 overlay (distinct color)
+lines(ave2017$doy, ave2017$discharge, lwd = 2, col = "#D55E00") # orange
+
+legend("topright",
+       c("mean", "±1 SD", "2017"),
+       lwd = c(2, NA, 2),
+       fill = c(NA, rgb(0.392, 0.584, 0.929, .2), NA),
+       col  = c("black", NA, "#D55E00"),
+       border = NA,
+       bty = "n")
+
