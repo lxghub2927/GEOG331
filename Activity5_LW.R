@@ -154,7 +154,8 @@ legend("topright", c("mean","1 standard deviation"), #legend items
 
 
 ##################
-#Question 5
+#Question 5 & Question 6
+#GOTTA EDIT THIS
 ## 1) 2017 daily means (by DOY)
 d2017 <- subset(datD, year == 2017)
 ave2017 <- aggregate(discharge ~ doy, d2017, mean, na.rm = TRUE)
@@ -166,6 +167,7 @@ ymax <- ceiling(ymax/10)*10  # round up a bit
 
 ## 3) Month ticks (use a non-leap template, 2017)
 month_starts <- yday(ymd(paste(2017, 1:12, 1, sep = "-")))  # 1,32,60,...
+
 month_labs   <- month.abb
 
 ## 4) Plot mean, ribbon (±1 SD), custom axes, then overlay 2017 line
@@ -197,4 +199,83 @@ legend("topright",
        col  = c("black", NA, "#D55E00"),
        border = NA,
        bty = "n")
+
+
+
+###################
+#Question 7
+###################
+
+library(dplyr)
+
+TZ <- "America/New_York"   # set your timezone as appropriate
+
+# --- 1) Ensure datetime columns exist ---
+# Precip (assumes datP$DATE is "YYYY-mm-dd HH:MM" or similar)
+datP <- datP %>%
+  mutate(dt = ymd_hm(DATE, tz = TZ),
+         date = as.Date(dt))
+
+# Discharge (use your existing dt column if you already built it)
+if (!("dt" %in% names(datD))) {
+  # Example if you have separate date ("m/d/Y") and time ("HH:MM")
+  datD <- datD %>%
+    mutate(dt = as_datetime(as.Date(date, "%m/%d/%Y"), tz = TZ) + hm(time))
+}
+datD$date <- as.Date(datD$dt)
+
+# --- 2) Auto-detect precip sampling interval & expected count per day ---
+# Uses the median interval across the whole series (robust if a few gaps exist)
+int_min <- as.numeric(median(diff(sort(unique(datP$dt)))), units = "mins")
+expected_per_day <- round(1440 / int_min)  # e.g., 24 for hourly, 96 for 15-min
+
+# If you know it's hourly and want to be strict, you could set: expected_per_day <- 24
+
+# --- 3) Build the "complete precip days" dataframe ---
+# Change 'precip' below to your precipitation column name if different
+value_col <- "precip"                            # <- adjust if needed (e.g., "Precip", "P")
+has_value <- if (value_col %in% names(datP)) !is.na(datP[[value_col]]) else rep(TRUE, nrow(datP))
+
+precip_daily <- datP %>%
+  mutate(has_value = has_value) %>%
+  group_by(date) %>%
+  summarise(
+    n_obs = sum(has_value),                      # non-NA measurements counted
+    expected = expected_per_day,
+    full24 = n_obs >= expected,                  # TRUE if day is "complete"
+    .groups = "drop"
+  )
+
+# This is the dataframe you asked for:
+# precip_daily has columns: date, n_obs, expected, full24
+# View the complete days:
+# subset(precip_daily, full24)
+
+# --- 4) Plot discharge and symbolize complete-precip days ---
+# choose y-limits
+ylim_max <- max(datD$discharge, na.rm = TRUE)
+ylim_max <- ceiling(ylim_max/10)*10
+
+# dates to highlight
+full_dates <- precip_daily$date[precip_daily$full24]
+idx_full <- datD$date %in% full_dates
+
+# Make the plot
+plot(datD$dt, datD$discharge, type = "l",
+     xlab = "Date",
+     ylab = expression(paste("Discharge (ft"^3, " sec"^-1, ")")),
+     main = "Discharge with Days of Complete Precipitation Coverage",
+     ylim = c(0, ylim_max))
+
+# Add points for times that fall on complete precip days (distinct color/symbol)
+points(datD$dt[idx_full], datD$discharge[idx_full],
+       pch = 16, col = "#D55E00", cex = 0.6)
+
+legend("topleft",
+       legend = c("Discharge", "Complete precip day"),
+       lty    = c(1, NA),
+       lwd    = c(2, NA),
+       pch    = c(NA, 16),
+       col    = c("black", "#D55E00"),
+       bty    = "n")
 
