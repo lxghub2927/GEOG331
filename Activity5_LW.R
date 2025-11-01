@@ -2,13 +2,13 @@
 library(lubridate)
 
 #read in streamflow data
-datH <- read.csv("Z:/zwang2/github_lw/GEOG331/data/hw5_data/stream_flow_data.csv",
+datH <- read.csv("//geogsv02/class/GEOG331_F25/zwang2/github_lw/GEOG331/data/hw5_data/stream_flow_data.csv",
                  na.strings = c("Eqp"))
 head(datH) 
 
 #read in precipitation data
 #hourly precipitation is in mm
-datP <- read.csv("Z:/zwang2/github_lw/GEOG331/data/hw5_data/2049867.csv")                            
+datP <- read.csv("//geogsv02/class/GEOG331_F25/zwang2/github_lw/GEOG331/data/hw5_data/2049867.csv")                            
 head(datP)
 
 #only use most reliable measurements <- symbolized by "A"
@@ -62,11 +62,8 @@ nrow(datP)
 ?paste
 
 
-
-
-
 ##############
-#basic formatting
+###Plotting the average daily discharge across all years with s.d.###
 aveF <- aggregate(datD$discharge, by=list(datD$doy), FUN="mean")
 colnames(aveF) <- c("doy","dailyAve")
 sdF <- aggregate(datD$discharge, by=list(datD$doy), FUN="sd")
@@ -82,95 +79,47 @@ plot(aveF$doy,aveF$dailyAve,
      type="l", 
      xlab="Year", 
      ylab=expression(paste("Discharge ft"^"3 ","sec"^"-1")),
-     lwd=2)
-
-#bigger margins
-par(mai=c(1,1,1,1))
-#make plot
-plot(aveF$doy,aveF$dailyAve, 
-     type="l", 
-     xlab="Year", 
-     ylab=expression(paste("Discharge ft"^"3 ","sec"^"-1")),
      lwd=2,
+    #using polygon feature to highlight standard deviation around the mean values on the graph
      ylim=c(0,90),
-     xaxs="i", yaxs ="i")#remove gaps from axes  
-#show standard deviation around the mean
+     xaxs="i", yaxs ="i",#remove gaps from axes  
+    axes = FALSE)#no axes
 polygon(c(aveF$doy, rev(aveF$doy)),#x coordinates
         c(aveF$dailyAve-sdF$dailySD,rev(aveF$dailyAve+sdF$dailySD)),#ycoord
         col=rgb(0.392, 0.584, 0.929,.2), #color that is semi-transparent
         border=NA#no border
 )
-
-#bigger margins
-par(mai=c(1,1,1,1))
-#make plot
-plot(aveF$doy,aveF$dailyAve, 
-     type="l", 
-     xlab="Year", 
-     ylab=expression(paste("Discharge ft"^"3 ","sec"^"-1")),
-     lwd=2,
-     ylim=c(0,90),
-     xaxs="i", yaxs ="i",#remove gaps from axes
-     axes=FALSE)#no axes
-polygon(c(aveF$doy, rev(aveF$doy)),#x coordinates
-        c(aveF$dailyAve-sdF$dailySD,rev(aveF$dailyAve+sdF$dailySD)),#ycoord
-        col=rgb(0.392, 0.584, 0.929,.2), #color that is semi-transparent
-        border=NA#no border
-)       
 axis(1, seq(0,360, by=40), #tick intervals
      lab=seq(0,360, by=40)) #tick labels
 axis(2, seq(0,80, by=20),
      seq(0,80, by=20),
      las = 2)#show ticks at 90 degree angle
-
-
-#adding legend
-#bigger margins
-par(mai=c(1,1,1,1))
-#make plot
-plot(aveF$doy,aveF$dailyAve, 
-     type="l", 
-     xlab="Year", 
-     ylab=expression(paste("Discharge ft"^"3 ","sec"^"-1")),
-     lwd=2,
-     ylim=c(0,90),
-     xaxs="i", yaxs ="i",#remove gaps from axes
-     axes=FALSE)#no axes
-polygon(c(aveF$doy, rev(aveF$doy)),#x coordinates
-        c(aveF$dailyAve-sdF$dailySD,rev(aveF$dailyAve+sdF$dailySD)),#ycoord
-        col=rgb(0.392, 0.584, 0.929,.2), #color that is semi-transparent
-        border=NA#no border
-)       
-axis(1, seq(0,360, by=40), #tick intervals
-     lab=seq(0,360, by=40)) #tick labels
-axis(2, seq(0,80, by=20),
-     seq(0,80, by=20),
-     las = 2)#show ticks at 90 degree angle
-legend("topright", c("mean","1 standard deviation"), #legend items
+legend("topright", c("mean","1 standard deviation"), #adding legend items
        lwd=c(2,NA),#lines
        fill=c(NA,rgb(0.392, 0.584, 0.929,.2)),#fill boxes
        border=NA,#no border for both fill boxes (don't need a vector here since both are the same)
        bty="n")#no legend border
 
 
+
 ##################
 #Question 5 & Question 6
-#GOTTA EDIT THIS
-## 1) 2017 daily means (by DOY)
-d2017 <- subset(datD, year == 2017)
-ave2017 <- aggregate(discharge ~ doy, d2017, mean, na.rm = TRUE)
 
-## 2) Nice y-limits that include mean±SD and 2017
+#Isolating and aggregating 2017 data
+day_2017 <- subset(datD, year == 2017)
+average_2017 <- aggregate(discharge ~ doy, day_2017, mean, na.rm = TRUE)
+
+#Incorporate proper data for ymax and ymin and round to more 
 ymin <- 0
-ymax <- max(c(aveF$dailyAve + sdF$dailySD, ave2017$discharge), na.rm = TRUE)
-ymax <- ceiling(ymax/10)*10  # round up a bit
+ymax <- max(c(aveF$dailyAve + sdF$dailySD, average_2017$discharge), na.rm = TRUE)
+ymax <- ceiling(ymax/10)*10 
 
-## 3) Month ticks (use a non-leap template, 2017)
+#Isolate and highlight month data to be placed onto x axis + 2017 not an leap year
 month_starts <- yday(ymd(paste(2017, 1:12, 1, sep = "-")))  # 1,32,60,...
-
+#Use .abb function to incorporate built in month abbrevations
 month_labs   <- month.abb
 
-## 4) Plot mean, ribbon (±1 SD), custom axes, then overlay 2017 line
+#Plot graph with average annual data across all years with s.d.
 par(mai = c(1,1,1,1))
 plot(aveF$doy, aveF$dailyAve,
      type = "l",
@@ -189,93 +138,70 @@ axis(1, at = month_starts, labels = month_labs)                 # months on x-ax
 axis(2, las = 2)                                                # y-axis
 box()
 
-## 5) 2017 overlay (distinct color)
-lines(ave2017$doy, ave2017$discharge, lwd = 2, col = "#D55E00") # orange
-
+#Plot 2017 layer that overlays the average annual data
+lines(average_2017$doy, average_2017$discharge, lwd = 2, col = "orange") # orange
+#Incorporate legend on top right according to requirements.
 legend("topright",
-       c("mean", "±1 SD", "2017"),
+       c("Mean Discharge Across All Years", "±1 Standard Deviation", "Mean Discharge in 2017"),
        lwd = c(2, NA, 2),
        fill = c(NA, rgb(0.392, 0.584, 0.929, .2), NA),
-       col  = c("black", NA, "#D55E00"),
+       col  = c("black", NA, "orange"),
        border = NA,
        bty = "n")
-
+###################
 
 
 ###################
 #Question 7
-###################
+###Part 1: Highlighting full days with full 24 hours of precipitation measurements.###
 
+#call dplyer for data manipulation and creation of dataframe
 library(dplyr)
 
-TZ <- "America/New_York"   # set your timezone as appropriate
+#Set correct time zone for creation of dataframe
+TZ <- "America/New_York"  
 
-# --- 1) Ensure datetime columns exist ---
-# Precip (assumes datP$DATE is "YYYY-mm-dd HH:MM" or similar)
-datP <- datP %>%
-  mutate(dt = ymd_hm(DATE, tz = TZ),
-         date = as.Date(dt))
+#Setting datatime for dataframe
+datP$dt   <- ymd_hm(datP$DATE, tz = TZ)
 
-# Discharge (use your existing dt column if you already built it)
-if (!("dt" %in% names(datD))) {
-  # Example if you have separate date ("m/d/Y") and time ("HH:MM")
-  datD <- datD %>%
-    mutate(dt = as_datetime(as.Date(date, "%m/%d/%Y"), tz = TZ) + hm(time))
-}
+#checking 4 data that would fail to parse
+which(is.na(datP$dt))
+datP[is.na(datP$dt), "DATE"]
+#failure to parse caused by measurements from conversion to daylight savings time. Skipped. 
+
+#continue with setting datatime for dataframe
+datP$date <- as.Date(datP$dt)
+datP$year <- year(datP$dt)
+datP$doy  <- yday(datP$dt)
+
+#Aggregating precipitations observations everyday
+prcp_obs_day <- aggregate(datP$date, by = list(datP$year, datP$doy), FUN = length)
+names(prcp_obs_day) <- c("year", "day of year", "observation count")
+
+#Highlighting days matching observation criteria and adding day
+prcp_obs_day$date  <- as.Date(paste0(prcp_obs_day$year, "-01-01")) + (prcp_obs_day$`day of year` - 1)
+prcp_obs_day$dayw24<- prcp_obs_day$`observation count`== 24
+
+###Part 2: Plotting discharge and symbolizing days with full precipitation measurements
+# Make a proper datetime + date for discharge
+datD$dt   <- as_datetime(as.Date(datD$date, "%m/%d/%Y"), tz = TZ) + hm(datD$time)
 datD$date <- as.Date(datD$dt)
 
-# --- 2) Auto-detect precip sampling interval & expected count per day ---
-# Uses the median interval across the whole series (robust if a few gaps exist)
-int_min <- as.numeric(median(diff(sort(unique(datP$dt)))), units = "mins")
-expected_per_day <- round(1440 / int_min)  # e.g., 24 for hourly, 96 for 15-min
+# Join the daily precip completeness flag to each discharge row (by date)
+datD_flag <- datD %>%
+  left_join(prcp_obs_day[, c("date", "dayw24")], by = "date")
 
-# If you know it's hourly and want to be strict, you could set: expected_per_day <- 24
+# Y limits to fit everything
+yl <- range(datD$discharge, na.rm = TRUE)
 
-# --- 3) Build the "complete precip days" dataframe ---
-# Change 'precip' below to your precipitation column name if different
-value_col <- "precip"                            # <- adjust if needed (e.g., "Precip", "P")
-has_value <- if (value_col %in% names(datP)) !is.na(datP[[value_col]]) else rep(TRUE, nrow(datP))
-
-precip_daily <- datP %>%
-  mutate(has_value = has_value) %>%
-  group_by(date) %>%
-  summarise(
-    n_obs = sum(has_value),                      # non-NA measurements counted
-    expected = expected_per_day,
-    full24 = n_obs >= expected,                  # TRUE if day is "complete"
-    .groups = "drop"
-  )
-
-# This is the dataframe you asked for:
-# precip_daily has columns: date, n_obs, expected, full24
-# View the complete days:
-# subset(precip_daily, full24)
-
-# --- 4) Plot discharge and symbolize complete-precip days ---
-# choose y-limits
-ylim_max <- max(datD$discharge, na.rm = TRUE)
-ylim_max <- ceiling(ylim_max/10)*10
-
-# dates to highlight
-full_dates <- precip_daily$date[precip_daily$full24]
-idx_full <- datD$date %in% full_dates
-
-# Make the plot
+# ---- Base plot: all discharge as a line ----
 plot(datD$dt, datD$discharge, type = "l",
      xlab = "Date",
      ylab = expression(paste("Discharge (ft"^3, " sec"^-1, ")")),
-     main = "Discharge with Days of Complete Precipitation Coverage",
-     ylim = c(0, ylim_max))
+     col  = "black", lwd = 1.2, xaxs = "i", yaxs = "i", ylim = yl)
 
-# Add points for times that fall on complete precip days (distinct color/symbol)
-points(datD$dt[idx_full], datD$discharge[idx_full],
-       pch = 16, col = "#D55E00", cex = 0.6)
+# 1) Symbolize full-precip days on the x-axis (rug ticks)
+full_dates <- prcp_obs_day$date[prcp_obs_day$dayw24]
+rug(full_dates, side = 1, col = "orange", lwd = 2)
 
-legend("topleft",
-       legend = c("Discharge", "Complete precip day"),
-       lty    = c(1, NA),
-       lwd    = c(2, NA),
-       pch    = c(NA, 16),
-       col    = c("black", "#D55E00"),
-       bty    = "n")
 
