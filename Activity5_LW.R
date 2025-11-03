@@ -153,8 +153,6 @@ legend("topright",
 
 ###################
 #Question 7
-###Part 1: Highlighting full days with full 24 hours of precipitation measurements.###
-
 #call dplyer for data manipulation and creation of dataframe
 library(dplyr)
 
@@ -163,45 +161,46 @@ TZ <- "America/New_York"
 
 #Setting datatime for dataframe
 datP$dt   <- ymd_hm(datP$DATE, tz = TZ)
-
-#checking 4 data that would fail to parse
-which(is.na(datP$dt))
-datP[is.na(datP$dt), "DATE"]
-#failure to parse caused by measurements from conversion to daylight savings time. Skipped. 
-
-#continue with setting datatime for dataframe
 datP$date <- as.Date(datP$dt)
 datP$year <- year(datP$dt)
 datP$doy  <- yday(datP$dt)
 
-#Aggregating precipitations observations everyday
-prcp_obs_day <- aggregate(datP$date, by = list(datP$year, datP$doy), FUN = length)
-names(prcp_obs_day) <- c("year", "day of year", "observation count")
 
-#Highlighting days matching observation criteria and adding day
-prcp_obs_day$date  <- as.Date(paste0(prcp_obs_day$year, "-01-01")) + (prcp_obs_day$`day of year` - 1)
-prcp_obs_day$dayw24<- prcp_obs_day$`observation count`== 24
+#checking 4 data that would fail to parse
+which(is.na(datP$dt))
+datP[is.na(datP$dt), "DATE"]
+#attempt to debug....
+datP <- datP %>% 
+  mutate(
+    dt_local = ymd_hm(DATE, tz = TZ, quiet = TRUE),
+    date = as.Date(ymd(substr(DATE, 1, 8)))
+  )
 
-###Part 2: Plotting discharge and symbolizing days with full precipitation measurements
-# Make a proper datetime + date for discharge
-datD$dt   <- as_datetime(as.Date(datD$date, "%m/%d/%Y"), tz = TZ) + hm(datD$time)
-datD$date <- as.Date(datD$dt)
+p_counts <- datP %>%
+  group_by(date) %>%
+  summarise(n_obs = sum(!is.na(dt_local)), .groups = "drop") %>%
+  mutate(full_day = n_obs %in% c(23L, 24L, 25L))
 
-# Join the daily precip completeness flag to each discharge row (by date)
-datD_flag <- datD %>%
-  left_join(prcp_obs_day[, c("date", "dayw24")], by = "date")
 
-# Y limits to fit everything
-yl <- range(datD$discharge, na.rm = TRUE)
+datD$date <- as.Date(datD$date, format = "%m/%d/%Y")
+datD_24days <- merge(datD, p_counts[, c("date", "full_day")], by = "date", all.x = TRUE)
 
-# ---- Base plot: all discharge as a line ----
-plot(datD$dt, datD$discharge, type = "l",
+
+datD_24days
+datD_24days$dt
+names(datD_24days)
+grep("^dt", names(datD_24days), value = TRUE)  # look for dt, dt.x, dt.y, etc.
+
+
+plot(datD_24days$dt, datD_24days$discharge, type = "l",
      xlab = "Date",
      ylab = expression(paste("Discharge (ft"^3, " sec"^-1, ")")),
-     col  = "black", lwd = 1.2, xaxs = "i", yaxs = "i", ylim = yl)
+     main = "Discharge with Full Precipitation Days",
+     col = "black")
 
-# 1) Symbolize full-precip days on the x-axis (rug ticks)
-full_dates <- prcp_obs_day$date[prcp_obs_day$dayw24]
-rug(full_dates, side = 1, col = "orange", lwd = 2)
-
+###!!!!! Add points or markers for full precip days!!!!
+points(datD_24days$dt[datD_24days$full_day],
+       datD_24days$discharge[datD_24days$full_day],
+       col = "orange", pch = 16)
+################
 
