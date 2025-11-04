@@ -1,3 +1,5 @@
+###Activity 5, GEOG 331###
+##### Initializing Codes #####
 #load in lubridate
 library(lubridate)
 
@@ -14,7 +16,7 @@ head(datP)
 #only use most reliable measurements <- symbolized by "A"
 datD <- datH[datH$discharge.flag == "A",]
 
-#### define time for streamflow #####
+##### define time for streamflow #####
 #convert date and time
 datesD <- as.Date(datD$date, "%m/%d/%Y")
 #get day of year
@@ -61,9 +63,8 @@ nrow(datP)
 ?expression
 ?paste
 
-
 ##############
-###Plotting the average daily discharge across all years with s.d.###
+#### Plotting the average daily discharge across all years with s.d. ####
 aveF <- aggregate(datD$discharge, by=list(datD$doy), FUN="mean")
 colnames(aveF) <- c("doy","dailyAve")
 sdF <- aggregate(datD$discharge, by=list(datD$doy), FUN="sd")
@@ -103,7 +104,7 @@ legend("topright", c("mean","1 standard deviation"), #adding legend items
 
 
 ##################
-#Question 5 & Question 6
+#### Q5 & Q6 ####
 
 #Isolating and aggregating 2017 data
 day_2017 <- subset(datD, year == 2017)
@@ -129,13 +130,14 @@ plot(aveF$doy, aveF$dailyAve,
      ylab = expression(paste("Discharge (ft"^3, " sec"^-1, ")")),
      lwd = 2, axes = FALSE)
 
+#use polygon to show s.d.
 polygon(c(aveF$doy, rev(aveF$doy)),
         c(aveF$dailyAve - sdF$dailySD, rev(aveF$dailyAve + sdF$dailySD)),
         col = rgb(0.392, 0.584, 0.929, .2),
         border = NA)
 
-axis(1, at = month_starts, labels = month_labs)                 # months on x-axis
-axis(2, las = 2)                                                # y-axis
+axis(1, at = month_starts, labels = month_labs)                 
+axis(2, las = 2)                                                
 box()
 
 #Plot 2017 layer that overlays the average annual data
@@ -156,39 +158,16 @@ legend("topright",
 #call dplyer for data manipulation and creation of dataframe
 library(dplyr)
 
-#Set correct time zone for creation of dataframe
-TZ <- "America/New_York"  
-
 #Setting datatime for dataframe
-datP$dt   <- ymd_hm(datP$DATE, tz = TZ)
+datP$dt   <- ymd_hm(datP$DATE)
 datP$date <- as.Date(datP$dt)
 datP$year <- year(datP$dt)
 datP$doy  <- yday(datP$dt)
 
-
-#checking 4 data that would fail to parse
-which(is.na(datP$dt))
-datP[is.na(datP$dt), "DATE"]
-#attempt to debug....
-datP <- datP %>% 
-  mutate(
-    dt_local = ymd_hm(DATE, tz = TZ, quiet = TRUE),
-    date = as.Date(ymd(substr(DATE, 1, 8)))
-  )
-
-p_counts <- datP %>%
-  group_by(date) %>%
-  summarise(n_obs = sum(!is.na(dt_local)), .groups = "drop") %>%
-  mutate(full_day = n_obs %in% c(23L, 24L, 25L))
-
-
+#merge days with full 24 hours of data to dataframe
 datD$date <- as.Date(datD$date, format = "%m/%d/%Y")
 datD_24days <- merge(datD, p_counts[, c("date", "full_day")], by = "date", all.x = TRUE)
 
-
-datD_24days
-datD_24days$dt
-names(datD_24days)
 grep("^dt", names(datD_24days), value = TRUE)  # look for dt, dt.x, dt.y, etc.
 datD_24days$dt <- as_datetime(as.Date(datD_24days$date, format="%m/%d/%Y"), tz=TZ) + hm(datD_24days$time)
 
@@ -204,7 +183,7 @@ points(datD_24days$dt[datD_24days$full_day],
        col = "orange", pch = 16)
 
 ###################
-
+#Making a hydrograph
 #subsest discharge and precipitation within range of interest
 hydroD <- datD[datD$doy >= 248 & datD$doy < 250 & datD$year == 2011,]
 hydroP <- datP[datP$doy >= 248 & datP$doy < 250 & datP$year == 2011,]
@@ -215,10 +194,8 @@ min(hydroD$discharge)
 #go outside of the range so that it's easy to see high/low values
 #floor rounds down the integer
 yl <- floor(min(hydroD$discharge))-1
-yl
 #ceiling rounds up to the integer
 yh <- ceiling(max(hydroD$discharge))+1
-yh
 #minimum and maximum range of precipitation to plot
 pl <- 0
 pm <-  ceiling(max(hydroP$HPCP, na.rm = TRUE))+.5
@@ -242,8 +219,37 @@ for(i in 1:nrow(hydroP)){
           col=rgb(0.392, 0.584, 0.929,.2), border=NA)
 }
 
-###################
-###Test Q9
+############
+### Q8 ###
+#Select doy 296 of 2007 as day to plot
+hydroD_custom <- datD[datD$doy >= 296 & datD$doy < 297 & datD$year == 2007,]
+hydroP_custom <- datP[datP$doy >= 296 & datP$doy < 297 & datP$year == 2007,]
+min(hydroD_custom$discharge)
+yl_custom <- floor(min(hydroD_custom$discharge))-1
+yh_custom <- ceiling(max(hydroD_custom$discharge))+1
+pl_custom <- 0
+pm_custom <-  ceiling(max(hydroP_custom$HPCP, na.rm = TRUE))+.5
+hydroP_custom$pscale <- (((yh_custom-yl_custom)/(pm_custom-pl_custom)) * hydroP_custom$HPCP) + yl_custom
+
+par(mai=c(1,1,1,1))
+#make plot of discharge for  day
+plot(hydroD_custom$decDay,
+     hydroD_custom$discharge, 
+     type="l", 
+     ylim=c(yl_custom,yh_custom), 
+     lwd=2,
+     xlab="Day of year", 
+     ylab=expression(paste("Discharge ft"^"3 ","sec"^"-1")))
+#add bars to indicate precipitation of custom day
+for(i in 1:nrow(hydroP_custom)){
+  polygon(c(hydroP_custom$decDay[i]-0.017,hydroP_custom$decDay[i]-0.017,
+            hydroP_custom$decDay[i]+0.017,hydroP_custom$decDay[i]+0.017),
+          c(yl_custom,hydroP_custom$pscale[i],hydroP_custom$pscale[i],yl),
+          col=rgb(0.392, 0.584, 0.929,.2), border=NA)
+}
+
+##################
+#Introducing Violin Plots#
 library(ggplot2)
 #specify year as a factor
 datD$yearPlot <- as.factor(datD$year)
@@ -255,6 +261,48 @@ ggplot(data= datD, aes(yearPlot,discharge)) +
 ggplot(data= datD, aes(yearPlot,discharge)) + 
   geom_violin()
 
-#####Q9#####
+##################
+### Q9 ###
+#to define time for plotting violin plots
+datD <- datD %>%
+  mutate(
+    date  = as.Date(date, format = "%m/%d/%Y"),
+    year  = year(date),
+    month = month(date)  
+  )
 
+#Filter out 2016 and 2017, then build seasons
+datDQ9 <- datD %>%
+  filter(year %in% c(2016, 2017)) %>%
+  mutate(
+    season = case_when(
+      month %in% c(12, 1, 2) ~ "Winter",   
+      month %in% 3:5         ~ "Spring",   
+      month %in% 6:8         ~ "Summer",   
+      month %in% 9:11        ~ "Autumn",   
+      TRUE ~ NA_character_
+    ),
+    season = factor(season, levels = c("Winter","Spring","Summer","Autumn")),
+    year   = factor(year)  
+  )
 
+# Constructing violin plots
+p <- ggplot(datDQ9, aes(x = season, y = discharge)) +
+  geom_violin(trim = FALSE, fill = "lightblue", color = "navy") +
+  geom_boxplot(width = 0.12, outlier.shape = 21, alpha = 0.8) +
+  facet_wrap(~ year, nrow = 1) +
+  labs(
+    title = "Streamflow Discharge by Season (2016 vs 2017)",
+    subtitle = "Seasons for both years defined:
+    Spring: March - May; Summer: June-August; Autumn: September-November; Winter: December-January",
+    x = "Season",
+    y = expression(paste("Discharge (ft"^3, " sec"^-1, ")"))
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 15, hjust = 1),
+    plot.title = element_text(face = "bold"),
+    strip.text = element_text(face = "bold")
+  )
+print(p)
