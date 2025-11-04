@@ -192,12 +192,12 @@ min(hydroD$discharge)
 #go outside of the range so that it's easy to see high/low values
 #floor rounds down the integer
 yl <- floor(min(hydroD$discharge))-1
-#ceiling rounds up to the integer
+#rounding up discharge values
 yh <- ceiling(max(hydroD$discharge))+1
 #minimum and maximum range of precipitation to plot
 pl <- 0
 pm <-  ceiling(max(hydroP$HPCP, na.rm = TRUE))+.5
-#scale precipitation to fit on the 
+#scale precipitation to fit on the plot
 hydroP$pscale <- (((yh-yl)/(pm-pl)) * hydroP$HPCP) + yl
 
 par(mai=c(1,1,1,1))
