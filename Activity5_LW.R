@@ -211,10 +211,6 @@ hydroP <- datP[datP$doy >= 248 & datP$doy < 250 & datP$year == 2011,]
 min(hydroD$discharge)
 
 
-#self-debug attempt-> The codes provided here does not work for me!
-hydroP$HPCP <- suppressWarnings(as.numeric(as.character(hydroP$HPCP)))
-hydroP$HPCP[hydroP$HPCP %in% c(-9999, -999, -99, 9999, 999)] <- NA  # adjust as needed
-
 #get minimum and maximum range of discharge to plot
 #go outside of the range so that it's easy to see high/low values
 #floor rounds down the integer
@@ -225,14 +221,9 @@ yh <- ceiling(max(hydroD$discharge))+1
 yh
 #minimum and maximum range of precipitation to plot
 pl <- 0
-pl
-pm <-  ceiling(max(hydroP$HPCP))+.5
-pm
-nrow(hydroP)
+pm <-  ceiling(max(hydroP$HPCP, na.rm = TRUE))+.5
 #scale precipitation to fit on the 
 hydroP$pscale <- (((yh-yl)/(pm-pl)) * hydroP$HPCP) + yl
-
-
 
 par(mai=c(1,1,1,1))
 #make plot of discharge
