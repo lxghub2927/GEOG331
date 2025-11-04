@@ -101,8 +101,6 @@ legend("topright", c("mean","1 standard deviation"), #adding legend items
        border=NA,#no border for both fill boxes (don't need a vector here since both are the same)
        bty="n")#no legend border
 
-
-
 ##################
 #### Q5 & Q6 ####
 
