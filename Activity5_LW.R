@@ -304,3 +304,4 @@ p <- ggplot(datDQ9, aes(x = season, y = discharge)) +
     strip.text = element_text(face = "bold")
   )
 print(p)
+
