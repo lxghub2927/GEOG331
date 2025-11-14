@@ -106,7 +106,7 @@ plot(annual_plot$ddtime, annual_plot$CO2_ppm,
      type = "l",
      xlab = "Date",
      ylab = expression(CO[2]~"(ppm)"),
-     main = "CO2 at Columbia Site - Merged from August to Eary October",
+     main = "CO2 at Columbia Site - Merged from July to Eary October",
      lwd = 1.5,
      xaxt = "n")
 
