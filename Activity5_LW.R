@@ -4,13 +4,12 @@
 library(lubridate)
 
 #read in streamflow data
-datH <- read.csv("//geogsv02/class/GEOG331_F25/zwang2/github_lw/GEOG331/data/hw5_data/stream_flow_data.csv",
-                 na.strings = c("Eqp"))
-head(datH) 
+datH <- read.csv("Z:/zwang2/data(lw)/hw5_data/stream_flow_data.csv", na.strings = c("Eqp"))
 
 #read in precipitation data
 #hourly precipitation is in mm
-datP <- read.csv("//geogsv02/class/GEOG331_F25/zwang2/github_lw/GEOG331/data/hw5_data/2049867.csv")                            
+datP <- read.csv("Z:/zwang2/data(lw)/hw5_data/2049867.csv")                            
+
 head(datP)
 
 #only use most reliable measurements <- symbolized by "A"
