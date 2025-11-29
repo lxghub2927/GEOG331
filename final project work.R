@@ -47,7 +47,7 @@ datco2_columbia_jul$UTC_time
 #########
 
 
-data_dir <- "Z:/zwang2/data(lw)/asrc_data"
+data_dir <- "Z:/zwang2/data(lw)/asrc_data_2425"
 dir.exists(data_dir)
 list.files(data_dir)
 
@@ -106,7 +106,7 @@ plot(annual_plot$ddtime, annual_plot$CO2_ppm,
      type = "l",
      xlab = "Date",
      ylab = expression(CO[2]~"(ppm)"),
-     main = "CO2 at Columbia Site - Merged from July to Eary October",
+     main = "CO2 at Columbia Site - Merged from January 2024 to Eary October 2025",
      lwd = 1.5,
      xaxt = "n")
 
