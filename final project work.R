@@ -1,55 +1,49 @@
-datco2_columbia_aug <- read.csv("Z:/zwang2/data(lw)/asrc_data/ASRC1hAugust(test2).csv")
-head(datco2_columbia_aug)                               
 
-datco2_columbia_aug$ddtime <- as.POSIXct(datco2_columbia_aug$UTC_time, format = "%m/%d/%Y %H:%M", tz= "America/New_York")
-datco2_columbia_aug$CO2_ppm_num <- as.numeric(datco2_columbia_aug$CO2_ppm)
+library(readr)
+library(dplyr)
+library(lubridate)
 
+data_dir_25 <- "Z:/zwang2/data(lw)/asrc_data_2025"
+datdir_list_25 <- list.files(data_dir_25, pattern = "\\.csv$", full.names = TRUE)
 
-plot(datco2_columbia_aug$ddtime, datco2_columbia_aug$CO2_ppm,
-     type = "l",
-     xlab = "Days in August 2025",
-     ylab = expression(CO[2]~"(ppm)"),
-     main = "Sample Data: CO2 Concentration at Columbia University (ASRC) Site - August 2025",
-     lwd = 2,
-     xaxt = "n")  
+dir.exists(data_dir_25)
+list.files(data_dir_25)
 
-# Add custom x-axis ticks every 5 days
-axis.POSIXct(1,
-             at = seq(from = min(datco2_columbia_aug$ddtime, na.rm = TRUE),
-                      to   = max(datco2_columbia_aug$ddtime, na.rm = TRUE),
-                      by   = "5 days"),
-             format = "%b %d")
+utc_time_col_25 <- "UTC_time"
+co2_col_25 <- "CO2_ppm"
 
-datco2_columbia_sep_oct <- read.csv("Z:/zwang2/data(lw)/asrc_data/ASRC_1h_merge_sep to oct_attempt_csv.csv")
-head(datco2_columbia_sep_oct)
-datco2_columbia_sep_oct$UTC_time
+raw_df_25 <- datdir_list_25 |>
+  lapply(function(f) {
+    read_csv(f, show_col_types = FALSE)
+  }) |>
+  bind_rows()
 
-datco2_columbia_sep_oct$ddtime <- as.POSIXct(datco2_columbia_sep_oct$UTC_time, format = "%m/%d/%Y %H:%M", tz= "America/New_York")
-datco2_columbia_sep_oct$CO2_ppm_num <- as.numeric(datco2_columbia_sep_oct$CO2_ppm)
+co2_df_25 <- raw_df_25 |>
+  select(all_of(c(utc_time_col_25, co2_col_25))) |>
+  rename(
+    time_utc = !!utc_time_col_25,
+    co2_ppm  = !!co2_col_25
+  )
 
-plot(datco2_columbia_sep_oct$ddtime, datco2_columbia_sep_oct$CO2_ppm,
-     type = "l",
-     xlab = "Days in September & October 2025",
-     ylab = expression(CO[2]~"(ppm)"),
-     main = "Sample Data: CO2 Concentration at Columbia University (ASRC) Site - September & October 2025",
-     lwd = 2,
-     xaxt = "n")  
+co2_df_25 <- co2_df_25 |>
+  mutate(
+    time_utc = mdy_hm(time_utc, tz="UTC")
+  )
 
+daily_co2_25 <- co2_df_25 |>
+  mutate(date_utc = as.Date(time_utc, tz = "UTC")) |>
+  group_by(date_utc) |>
+  summarise(
+    mean_co2_25 = mean(co2_ppm, na.rm=TRUE),
+    n_measurements = n(),
+    .groups = "drop"
+  )
 
-datco2_columbia_jul <- read.csv("Z:/zwang2/data(lw)/asrc_data/ASRC_jul_no_Table_name.csv")
-head(datco2_columbia_jul)
-datco2_columbia_jul$UTC_time
-
-
-
+daily_co2_25
 #########
 #Attempt to plot all together
 #########
 
-
-data_dir <- "Z:/zwang2/data(lw)/asrc_data_2425"
-dir.exists(data_dir)
-list.files(data_dir)
 
 csv_paths <- list.files(data_dir,
                         pattern = "\\.csv$",  
@@ -112,3 +106,47 @@ plot(annual_plot$ddtime, annual_plot$CO2_ppm,
 
 axis.POSIXct(side = 1, at = ticks, format = "%b")  
 
+
+'''
+datco2_columbia_aug <- read.csv("Z:/zwang2/data(lw)/asrc_data/ASRC1hAugust(test2).csv")
+head(datco2_columbia_aug)                               
+
+datco2_columbia_aug$ddtime <- as.POSIXct(datco2_columbia_aug$UTC_time, format = "%m/%d/%Y %H:%M", tz= "America/New_York")
+datco2_columbia_aug$CO2_ppm_num <- as.numeric(datco2_columbia_aug$CO2_ppm)
+
+
+plot(datco2_columbia_aug$ddtime, datco2_columbia_aug$CO2_ppm,
+     type = "l",
+     xlab = "Days in August 2025",
+     ylab = expression(CO[2]~"(ppm)"),
+     main = "Sample Data: CO2 Concentration at Columbia University (ASRC) Site - August 2025",
+     lwd = 2,
+     xaxt = "n")  
+
+# Add custom x-axis ticks every 5 days
+axis.POSIXct(1,
+             at = seq(from = min(datco2_columbia_aug$ddtime, na.rm = TRUE),
+                      to   = max(datco2_columbia_aug$ddtime, na.rm = TRUE),
+                      by   = "5 days"),
+             format = "%b %d")
+
+datco2_columbia_sep_oct <- read.csv("Z:/zwang2/data(lw)/asrc_data/ASRC_1h_merge_sep to oct_attempt_csv.csv")
+head(datco2_columbia_sep_oct)
+datco2_columbia_sep_oct$UTC_time
+
+datco2_columbia_sep_oct$ddtime <- as.POSIXct(datco2_columbia_sep_oct$UTC_time, format = "%m/%d/%Y %H:%M", tz= "America/New_York")
+datco2_columbia_sep_oct$CO2_ppm_num <- as.numeric(datco2_columbia_sep_oct$CO2_ppm)
+
+plot(datco2_columbia_sep_oct$ddtime, datco2_columbia_sep_oct$CO2_ppm,
+     type = "l",
+     xlab = "Days in September & October 2025",
+     ylab = expression(CO[2]~"(ppm)"),
+     main = "Sample Data: CO2 Concentration at Columbia University (ASRC) Site - September & October 2025",
+     lwd = 2,
+     xaxt = "n")  
+
+
+datco2_columbia_jul <- read.csv("Z:/zwang2/data(lw)/asrc_data/ASRC_jul_no_Table_name.csv")
+head(datco2_columbia_jul)
+datco2_columbia_jul$UTC_time
+'''
