@@ -117,3 +117,18 @@ plot(rf_prediction,
      legend=FALSE, axes=FALSE)
 legend("bottomleft", paste(landclass$landcover),
        fill=landclass$cols ,bty="n",horiz = T) 
+
+#get validation data from raster by extracting 
+#cell values at the cell coordinates
+rf_Eval <- extract(rf_prediction, validD[,2:3])
+
+#make the confusion matrix
+rf_errorM <- confusionMatrix(as.factor(rf_Eval[,2]),as.factor(validD$landcID))
+#add landcover names
+colnames(rf_errorM$table) <- landclass$landcover
+rownames(rf_errorM$table) <- landclass$landcover
+#view the matrix
+rf_errorM$table
+
+#look at the overall accuracy
+rf_errorM$overall
