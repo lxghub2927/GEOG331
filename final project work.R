@@ -40,12 +40,14 @@ daily_co2_25 <- co2_df_25 |>
   )
 
 daily_co2_25
+
+
 #########
 #Attempt to plot all together
 #########
 
 
-csv_paths <- list.files(data_dir,
+csv_paths <- list.files(data_dir_25,
                         pattern = "\\.csv$",  
                         full.names = TRUE)
 
@@ -100,7 +102,7 @@ plot(annual_plot$ddtime, annual_plot$CO2_ppm,
      type = "l",
      xlab = "Date",
      ylab = expression(CO[2]~"(ppm)"),
-     main = "CO2 at Columbia Site - Merged from January 2024 to Eary October 2025",
+     main = "CO2 at Columbia Site - January to Eary October 2025",
      lwd = 1.5,
      xaxt = "n")
 
@@ -108,6 +110,13 @@ axis.POSIXct(side = 1, at = ticks, format = "%b")
 
 
 '''
+
+
+###
+Preliminary Data Plotting
+###
+
+
 datco2_columbia_aug <- read.csv("Z:/zwang2/data(lw)/asrc_data/ASRC1hAugust(test2).csv")
 head(datco2_columbia_aug)                               
 
