@@ -2,6 +2,7 @@
 library(readr)
 library(dplyr)
 library(lubridate)
+library(forecast)
 
 
 #####
@@ -229,9 +230,15 @@ plot(annual_plot$ddtime, annual_plot$CO2_ppm,
 axis.POSIXct(side = 1, at = ticks, format = "%b")  
 
 
+
+
+
+
+
+
+
+
 '''
-
-
 ###
 Preliminary Data Plotting
 ###
