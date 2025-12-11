@@ -2,7 +2,6 @@
 library(readr)
 library(dplyr)
 library(lubridate)
-library(forecast)
 
 
 #####
@@ -49,7 +48,7 @@ hist(daily_co2_25$mean_co2_25,
      probability=TRUE,
      main = "Distribution of CO2 ppm(2025)",
      xlab = "CO2 PPM",
-     col = "blue")
+     col = "lightblue")
 
 shapiro.test(daily_co2_25$mean_co2_25)
 #Nah
